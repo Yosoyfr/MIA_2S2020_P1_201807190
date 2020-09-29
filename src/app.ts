@@ -2,13 +2,16 @@ import express, { Application } from "express";
 import morgan from "morgan";
 import cors from "cors";
 
+//Routes
+import indexRoutes from "./routes/index.routes";
+
 export class App {
   app: Application;
 
   constructor(private port?: number | string) {
     this.app = express();
     this.settings();
-    this.middlewares();
+    this.middleware();
     this.routes();
   }
 
@@ -16,7 +19,7 @@ export class App {
     this.app.set("port", this.port || process.env.PORT || 3000);
   }
 
-  private middlewares() {
+  private middleware() {
     this.app.use(morgan("dev"));
     this.app.use(cors());
     this.app.use(express.urlencoded({ extended: false }));
@@ -24,9 +27,7 @@ export class App {
   }
 
   private routes() {
-    this.app.get("/", (req, res) => {
-      return res.send(`The API is at http://localhost:${this.app.get("port")}`);
-    });
+    this.app.use(indexRoutes);
   }
 
   async listen(): Promise<void> {
