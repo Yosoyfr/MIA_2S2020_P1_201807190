@@ -4,6 +4,7 @@ import cors from "cors";
 
 //Routes
 import indexRoutes from "./routes/index.routes";
+import postRoutes from "./routes/posts.routes";
 
 export class App {
   app: Application;
@@ -15,23 +16,25 @@ export class App {
     this.routes();
   }
 
-  private settings() {
+  private settings(): void {
     this.app.set("port", this.port || process.env.PORT || 3000);
   }
 
-  private middleware() {
+  private middleware(): void {
     this.app.use(morgan("dev"));
     this.app.use(cors());
     this.app.use(express.urlencoded({ extended: false }));
     this.app.use(express.json());
   }
 
-  private routes() {
+  private routes(): void {
     this.app.use(indexRoutes);
+    this.app.use("/posts", postRoutes);
   }
 
-  async listen(): Promise<void> {
-    await this.app.listen(this.app.get("port"));
-    console.log("Server on port", this.app.get("port"));
+  start(): void {
+    this.app.listen(this.app.get("port"), () => {
+      console.log("Server on port", this.app.get("port"));
+    });
   }
 }
