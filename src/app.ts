@@ -5,7 +5,6 @@ import cors from "cors";
 //Routes
 import indexRoutes from "./routes/index.routes";
 import modelRoutes from "./routes/model.routes";
-import postRoutes from "./routes/posts.routes";
 
 export class App {
   app: Application;
@@ -31,7 +30,6 @@ export class App {
   private routes(): void {
     this.app.use(indexRoutes);
     this.app.use(modelRoutes);
-    this.app.use("/posts", postRoutes);
   }
 
   start(): void {
