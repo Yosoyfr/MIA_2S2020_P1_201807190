@@ -8,9 +8,10 @@ class Controllers {
     return res.json("Welcome to my API");
   }
 
-  public async query1(req: Request, res: Response): Promise<Response> {
+  public async query1(req: Request, res: Response) {
     const conn = await connect();
-    const provider = await conn.query(`
+    await conn.query(
+      `
       SELECT Proveedor.nombre, Proveedor.telefono, Orden.id, Orden.total
       FROM usuario Proveedor 
       INNER JOIN transaccion Orden ON Orden.usuario = Proveedor.id
@@ -19,13 +20,18 @@ class Controllers {
         SELECT MAX(Orden.total) 
         FROM transaccion Orden
       )
-    `);
-    return res.json(provider[0]);
+    `,
+      (err, result) => {
+        if (err) throw err;
+        res.send(result);
+      }
+    );
   }
 
-  public async query2(req: Request, res: Response): Promise<Response> {
+  public async query2(req: Request, res: Response) {
     const conn = await connect();
-    const client = await conn.query(`
+    await conn.query(
+      `
       SELECT Cliente.id, Cliente.nombre, 
       SUM(Detalle.cantidad*Producto.precio) AS totalGastado,
       SUM(Detalle.cantidad) AS totalComprado
@@ -36,47 +42,57 @@ class Controllers {
       WHERE Cliente.tipo=2
       GROUP BY Cliente.id, Cliente.nombre
       ORDER BY totalComprado DESC LIMIT 1
-    `);
-    return res.json(client[0]);
+    `,
+      (err, result) => {
+        if (err) throw err;
+        res.send(result);
+      }
+    );
   }
 
-  public async query3(req: Request, res: Response): Promise<Response> {
+  public async query3(req: Request, res: Response) {
     const conn = await connect();
-    const location = await conn.query(`
+    await conn.query(
+      `
       (SELECT Ubicacion.description AS direccion,
       Ciudad.codigoPostal AS codigoPostal,
       Ciudad.nombre AS ciudad,
-      Region.nombre AS region
-      FROM usuario Cliente 
-      INNER JOIN transaccion Venta ON Venta.usuario = Cliente.id
-      INNER JOIN ubicacion Ubicacion ON Ubicacion.id = Cliente.ubicacion
+      Region.nombre AS region,
+      COUNT(Venta.id) AS ventas
+      FROM usuario Proveedor 
+      INNER JOIN transaccion Venta ON Venta.usuario = Proveedor.id
+      INNER JOIN ubicacion Ubicacion ON Ubicacion.id = Proveedor.ubicacion
       INNER JOIN ciudad Ciudad ON Ciudad.codigoPostal = Ubicacion.ciudad
       INNER JOIN region Region ON Region.id = Ciudad.region
-      INNER JOIN detalle_transaccion Detalle ON Detalle.transaccion = Venta.id
-      WHERE Cliente.tipo=1
-      GROUP BY Cliente.ubicacion
-      ORDER BY SUM(Detalle.cantidad) DESC LIMIT 1)
+      WHERE Proveedor.tipo=1
+      GROUP BY Proveedor.ubicacion
+      ORDER BY ventas DESC LIMIT 1)
       UNION
       (SELECT Ubicacion.description AS direccion,
       Ciudad.codigoPostal AS codigoPostal,
       Ciudad.nombre AS ciudad,
-      Region.nombre AS region
-      FROM usuario Cliente 
-      INNER JOIN transaccion Venta ON Venta.usuario = Cliente.id
-      INNER JOIN ubicacion Ubicacion ON Ubicacion.id = Cliente.ubicacion
+      Region.nombre AS region,
+      COUNT(Venta.id) AS ventas
+      FROM usuario Proveedor 
+      INNER JOIN transaccion Venta ON Venta.usuario = Proveedor.id
+      INNER JOIN ubicacion Ubicacion ON Ubicacion.id = Proveedor.ubicacion
       INNER JOIN ciudad Ciudad ON Ciudad.codigoPostal = Ubicacion.ciudad
       INNER JOIN region Region ON Region.id = Ciudad.region
-      INNER JOIN detalle_transaccion Detalle ON Detalle.transaccion = Venta.id
-      WHERE Cliente.tipo=1
-      GROUP BY Cliente.ubicacion
-      ORDER BY SUM(Detalle.cantidad) ASC LIMIT 1)
-    `);
-    return res.json(location[0]);
+      WHERE Proveedor.tipo=1
+      GROUP BY Proveedor.ubicacion
+      ORDER BY ventas ASC LIMIT 1)
+    `,
+      (err, result) => {
+        if (err) throw err;
+        res.send(result);
+      }
+    );
   }
 
-  public async query4(req: Request, res: Response): Promise<Response> {
+  public async query4(req: Request, res: Response) {
     const conn = await connect();
-    const client = await conn.query(`
+    await conn.query(
+      `
       SELECT Cliente.id, Cliente.nombre, COUNT(Orden.id) AS ordenes, SUM(Producto.precio*Detalle.cantidad) AS total
       FROM usuario Cliente 
       INNER JOIN transaccion Orden ON Orden.usuario = Cliente.id
@@ -86,13 +102,18 @@ class Controllers {
       WHERE Cliente.tipo=2
       GROUP BY Cliente.id
       ORDER BY SUM(Detalle.cantidad) DESC, total DESC LIMIT 5
-    `);
-    return res.json(client[0]);
+    `,
+      (err, result) => {
+        if (err) throw err;
+        res.send(result);
+      }
+    );
   }
 
-  public async query5(req: Request, res: Response): Promise<Response> {
+  public async query5(req: Request, res: Response) {
     const conn = await connect();
-    const client = await conn.query(`
+    await conn.query(
+      `
       (SELECT Cliente.nombre, MONTH(Cliente.createdAt) AS mes
       FROM usuario Cliente 
       INNER JOIN transaccion Orden ON Orden.usuario = Cliente.id
@@ -106,13 +127,18 @@ class Controllers {
       WHERE Cliente.tipo=2 
       GROUP BY Cliente.id
       ORDER BY SUM(Orden.total) ASC LIMIT 5)
-    `);
-    return res.json(client[0]);
+    `,
+      (err, result) => {
+        if (err) throw err;
+        res.send(result);
+      }
+    );
   }
 
-  public async query6(req: Request, res: Response): Promise<Response> {
+  public async query6(req: Request, res: Response) {
     const conn = await connect();
-    const category = await conn.query(`
+    await conn.query(
+      `
       (SELECT Categoria.nombre, SUM(Producto.precio*Detalle.cantidad) AS total
       FROM categoria_producto Categoria 
       INNER JOIN producto Producto ON Producto.categoria = Categoria.id
@@ -130,13 +156,18 @@ class Controllers {
       INNER JOIN usuario Cliente ON Orden.usuario = Cliente.id AND Cliente.tipo=2
       GROUP BY Categoria.nombre
       ORDER BY total ASC LIMIT 1)
-    `);
-    return res.json(category[0]);
+    `,
+      (err, result) => {
+        if (err) throw err;
+        res.send(result);
+      }
+    );
   }
 
-  public async query7(req: Request, res: Response): Promise<Response> {
+  public async query7(req: Request, res: Response) {
     const conn = await connect();
-    const provider = await conn.query(`
+    await conn.query(
+      `
       SELECT Proveedor.id, Proveedor.nombre, SUM(Producto.precio*Detalle.cantidad) AS total
       FROM usuario Proveedor 
       INNER JOIN transaccion Pedido ON Pedido.usuario = Proveedor.id
@@ -146,13 +177,18 @@ class Controllers {
       WHERE Proveedor.tipo=1
       GROUP BY Proveedor.id
       ORDER BY total DESC LIMIT 5
-    `);
-    return res.json(provider[0]);
+    `,
+      (err, result) => {
+        if (err) throw err;
+        res.send(result);
+      }
+    );
   }
 
-  public async query8(req: Request, res: Response): Promise<Response> {
+  public async query8(req: Request, res: Response) {
     const conn = await connect();
-    const location = await conn.query(`
+    await conn.query(
+      `
       (SELECT Ubicacion.description AS direccion,
       Ciudad.codigoPostal AS codigoPostal,
       Ciudad.nombre AS ciudad,
@@ -180,13 +216,18 @@ class Controllers {
       WHERE Cliente.tipo=2
       GROUP BY Cliente.id
       ORDER BY total ASC LIMIT 5)
-    `);
-    return res.json(location[0]);
+    `,
+      (err, result) => {
+        if (err) throw err;
+        res.send(result);
+      }
+    );
   }
 
-  public async query9(req: Request, res: Response): Promise<Response> {
+  public async query9(req: Request, res: Response) {
     const conn = await connect();
-    const provider = await conn.query(`
+    await conn.query(
+      `
       SELECT Proveedor.nombre, Proveedor.telefono, Pedido.id AS orden,
       SUM(Producto.precio*Detalle.cantidad) AS total,
       SUM(Detalle.cantidad) AS cantidad
@@ -197,13 +238,18 @@ class Controllers {
       WHERE Proveedor.tipo=1 
       GROUP BY Pedido.id
       ORDER BY cantidad ASC, total ASC LIMIT 1
-    `);
-    return res.json(provider[0]);
+    `,
+      (err, result) => {
+        if (err) throw err;
+        res.send(result);
+      }
+    );
   }
 
-  public async query10(req: Request, res: Response): Promise<Response> {
+  public async query10(req: Request, res: Response) {
     const conn = await connect();
-    const client = await conn.query(`
+    await conn.query(
+      `
       SELECT Cliente.nombre, SUM(Detalle.cantidad) AS cantidad, SUM(Producto.precio*Detalle.cantidad) AS total
       FROM usuario Cliente 
       INNER JOIN transaccion Orden ON Orden.usuario = Cliente.id
@@ -213,8 +259,12 @@ class Controllers {
       WHERE Cliente.tipo=2
       GROUP BY Cliente.id
       ORDER BY cantidad DESC, total DESC LIMIT 10
-    `);
-    return res.json(client[0]);
+    `,
+      (err, result) => {
+        if (err) throw err;
+        res.send(result);
+      }
+    );
   }
 }
 

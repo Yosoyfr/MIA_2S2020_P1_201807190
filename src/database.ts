@@ -1,7 +1,7 @@
-import { createPool } from "mysql2/promise";
+import mysql from "mysql";
 
 export async function connect() {
-  const connection = await createPool({
+  const connection = await mysql.createConnection({
     host: "localhost",
     user: "root",
     password: "12345",
