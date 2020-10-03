@@ -22,7 +22,7 @@ class Controllers {
       )
     `,
       (err, result) => {
-        if (err) throw err;
+        if (err) res.json({ error: "Error 404" });
         res.send(result);
       }
     );
@@ -44,7 +44,7 @@ class Controllers {
       ORDER BY totalComprado DESC LIMIT 1
     `,
       (err, result) => {
-        if (err) throw err;
+        if (err) res.json({ error: "Error 404" });
         res.send(result);
       }
     );
@@ -83,7 +83,7 @@ class Controllers {
       ORDER BY ventas ASC LIMIT 1)
     `,
       (err, result) => {
-        if (err) throw err;
+        if (err) res.json({ error: "Error 404" });
         res.send(result);
       }
     );
@@ -104,7 +104,7 @@ class Controllers {
       ORDER BY SUM(Detalle.cantidad) DESC, total DESC LIMIT 5
     `,
       (err, result) => {
-        if (err) throw err;
+        if (err) res.json({ error: "Error 404" });
         res.send(result);
       }
     );
@@ -129,7 +129,7 @@ class Controllers {
       ORDER BY SUM(Orden.total) ASC LIMIT 5)
     `,
       (err, result) => {
-        if (err) throw err;
+        if (err) res.json({ error: "Error 404" });
         res.send(result);
       }
     );
@@ -158,7 +158,7 @@ class Controllers {
       ORDER BY total ASC LIMIT 1)
     `,
       (err, result) => {
-        if (err) throw err;
+        if (err) res.json({ error: "Error 404" });
         res.send(result);
       }
     );
@@ -179,7 +179,7 @@ class Controllers {
       ORDER BY total DESC LIMIT 5
     `,
       (err, result) => {
-        if (err) throw err;
+        if (err) res.json({ error: "Error 404" });
         res.send(result);
       }
     );
@@ -218,7 +218,7 @@ class Controllers {
       ORDER BY total ASC LIMIT 5)
     `,
       (err, result) => {
-        if (err) throw err;
+        if (err) res.json({ error: "Error 404" });
         res.send(result);
       }
     );
@@ -240,7 +240,7 @@ class Controllers {
       ORDER BY cantidad ASC, total ASC LIMIT 1
     `,
       (err, result) => {
-        if (err) throw err;
+        if (err) res.json({ error: "Error 404" });
         res.send(result);
       }
     );
@@ -261,7 +261,7 @@ class Controllers {
       ORDER BY cantidad DESC, total DESC LIMIT 10
     `,
       (err, result) => {
-        if (err) throw err;
+        if (err) res.json({ error: "Error 404" });
         res.send(result);
       }
     );
